@@ -1,11 +1,20 @@
 import Dexie, { type Table } from 'dexie'
-import type { AllocationRow, CategoryRow, MetaRow, NoteRow, OutboxRow, TransactionRow } from './types'
+import type {
+  AllocationRow,
+  CategoryRow,
+  LongTermRow,
+  MetaRow,
+  NoteRow,
+  OutboxRow,
+  TransactionRow,
+} from './types'
 
 export class NotesDB extends Dexie {
   notes!: Table<NoteRow, string>
   budget_categories!: Table<CategoryRow, string>
   budget_allocations!: Table<AllocationRow, string>
   budget_transactions!: Table<TransactionRow, string>
+  budget_long_term!: Table<LongTermRow, string>
   outbox!: Table<OutboxRow, string>
   meta!: Table<MetaRow, string>
 
@@ -18,6 +27,9 @@ export class NotesDB extends Dexie {
       budget_transactions: 'id, user_id, month, category_id, created_at',
       outbox: 'key, table, rowId',
       meta: 'key',
+    })
+    this.version(2).stores({
+      budget_long_term: 'id, user_id, sort_order',
     })
   }
 }

@@ -1,16 +1,17 @@
 import { db } from './db'
-import { ensureSeedCategories } from './seed'
+import { clearSeededCategories } from './presets'
 import { requireClient } from './supabase'
 import { assertNever, roundMoney } from './time'
 import type {
   AllocationRow,
   CategoryRow,
+  LongTermRow,
   NoteRow,
   TableName,
   TransactionRow,
 } from './types'
 
-type SyncRow = NoteRow | CategoryRow | AllocationRow | TransactionRow
+type SyncRow = NoteRow | CategoryRow | AllocationRow | TransactionRow | LongTermRow
 
 export type SyncStatus = 'offline' | 'syncing' | 'saved' | 'error'
 
@@ -18,6 +19,7 @@ type Listener = (status: SyncStatus, detail: string) => void
 
 const TABLES: TableName[] = [
   'budget_categories',
+  'budget_long_term',
   'budget_allocations',
   'budget_transactions',
   'notes',
@@ -80,7 +82,7 @@ async function run(): Promise<void> {
       return
     }
     await pullAll(userId)
-    await ensureSeedCategories(userId)
+    await clearSeededCategories(userId)
     await pushAll(userId)
     publish(navigator.onLine ? 'saved' : 'offline')
   } catch (error) {
@@ -202,6 +204,8 @@ async function readRow(table: TableName, id: string): Promise<SyncRow | undefine
       return db.budget_allocations.get(id)
     case 'budget_transactions':
       return db.budget_transactions.get(id)
+    case 'budget_long_term':
+      return db.budget_long_term.get(id)
     default:
       return assertNever(table)
   }
@@ -220,6 +224,9 @@ async function writeRow(table: TableName, row: SyncRow): Promise<void> {
       return
     case 'budget_transactions':
       await db.budget_transactions.put(row as TransactionRow)
+      return
+    case 'budget_long_term':
+      await db.budget_long_term.put(row as LongTermRow)
       return
     default:
       assertNever(table)
@@ -257,6 +264,17 @@ function normalize(table: TableName, value: unknown): SyncRow {
         month: asString(row.month),
         category_id: asString(row.category_id),
         amount: roundMoney(asNumber(row.amount)),
+        carry_applied_from: asNullableString(row.carry_applied_from),
+        updated_at: asString(row.updated_at),
+        deleted_at: asNullableString(row.deleted_at),
+      }
+    case 'budget_long_term':
+      return {
+        id: asString(row.id),
+        user_id: asString(row.user_id),
+        name: asString(row.name),
+        amount: roundMoney(asNumber(row.amount)),
+        sort_order: asNumber(row.sort_order),
         updated_at: asString(row.updated_at),
         deleted_at: asNullableString(row.deleted_at),
       }

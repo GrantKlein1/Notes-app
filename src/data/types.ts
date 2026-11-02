@@ -5,6 +5,7 @@ export type TableName =
   | 'budget_categories'
   | 'budget_allocations'
   | 'budget_transactions'
+  | 'budget_long_term'
 
 export interface NoteRow {
   id: string
@@ -33,6 +34,18 @@ export interface AllocationRow {
   month: string
   category_id: string
   amount: number
+  /** Previous month whose leftover was already added into this amount. */
+  carry_applied_from: string | null
+  updated_at: string
+  deleted_at: string | null
+}
+
+export interface LongTermRow {
+  id: string
+  user_id: string
+  name: string
+  amount: number
+  sort_order: number
   updated_at: string
   deleted_at: string | null
 }

@@ -363,6 +363,7 @@ button { cursor: pointer; }
 .bar > span { display: block; height: 100%; background: var(--tint); border-radius: inherit; }
 .bar.over > span { background: var(--danger); }
 
+.name-input,
 .money-input, .memo-input, .add-row input, .field input {
   border: 0;
   background: var(--fill);
@@ -371,7 +372,9 @@ button { cursor: pointer; }
   font-size: 17px;
   outline: none;
 }
+.name-input { flex: 1; min-width: 0; min-height: 44px; }
 .money-input { width: 112px; text-align: right; font-variant-numeric: tabular-nums; }
+.area-row { display: flex; align-items: center; gap: 8px; }
 .add-row {
   display: flex;
   gap: 8px;
@@ -550,6 +553,35 @@ button { cursor: pointer; }
   padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
 }
 .sheet h2 { margin: 8px 0 12px; font-size: 20px; }
+.calc-display {
+  margin: 0 0 12px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--bg-elevated);
+  text-align: right;
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: -0.6px;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+}
+.calc-keys {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.calc-key {
+  height: 52px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--bg-elevated);
+  font-size: 22px;
+  font-weight: 500;
+}
+.calc-key.wide { grid-column: span 4; }
+.calc-key.op { background: var(--fill); color: var(--tint); }
+.calc-key.go { background: var(--tint); color: white; }
+
 .sheet-grab {
   width: 36px;
   height: 5px;

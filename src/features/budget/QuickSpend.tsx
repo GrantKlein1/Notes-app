@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Link, useNavigate } from 'react-router-dom'
 import { useUserId } from '../../components/AuthProvider'
@@ -6,13 +6,16 @@ import { appendDigit, Keypad } from '../../components/Keypad'
 import { MonthSwitcher } from '../../components/MonthSwitcher'
 import { useMonth } from '../../components/useMonth'
 import { db } from '../../data/db'
-import { addTransaction } from '../../data/repository'
+import { addTransaction, applyCarryForward } from '../../data/repository'
 import { formatCents } from '../../data/time'
 
 export function QuickSpend() {
   const userId = useUserId()
   const navigate = useNavigate()
   const [month, setMonth] = useMonth()
+  useEffect(() => {
+    void applyCarryForward(userId, month)
+  }, [userId, month])
   const [categoryId, setCategoryId] = useState('')
   const [digits, setDigits] = useState('')
   const [memo, setMemo] = useState('')
@@ -60,7 +63,7 @@ export function QuickSpend() {
           </button>
         ))}
       </div>
-      {categories && categories.length === 0 ? <p className="muted pad">Add a category in Edit amounts first.</p> : null}
+      {categories && categories.length === 0 ? <p className="muted pad">Add an area in Edit areas first.</p> : null}
       <p className="amount-display">{formatCents(cents)}</p>
       <input
         className="memo-input"
