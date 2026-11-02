@@ -3,7 +3,7 @@ import { markDirty } from './outbox'
 import { clearSeededCategories } from './presets'
 import { syncSoon } from './sync'
 import { plainTextFromDoc, prayerText, titleFromDoc } from './text'
-import { addMonths, isMonth, newId, nowIso, roundMoney } from './time'
+import { addMonths, currentMonth, isMonth, monthHasPassed, newId, nowIso, roundMoney } from './time'
 import type { AllocationRow, CategoryRow, LongTermRow, NoteRow, TransactionRow } from './types'
 
 export async function createNote(
@@ -319,7 +319,7 @@ export async function deleteLongTerm(id: string): Promise<void> {
 
 let carryChain: Promise<void> = Promise.resolve()
 
-/** Add each area's leftover onto the following month, once per step. */
+/** Add leftover into the next month only after the source month has ended, once per step. */
 export function applyCarryForward(userId: string, month: string): Promise<void> {
   const run = carryChain.then(async () => {
     await clearSeededCategories(userId)
@@ -347,14 +347,18 @@ async function rollCarry(userId: string, month: string): Promise<void> {
   const known = new Set<string>([month])
   for (const row of allocations) known.add(row.month)
   for (const row of transactions) known.add(row.month)
+  const todayMonth = currentMonth()
+  const end = month > todayMonth ? month : todayMonth
+  known.add(end)
   const earliest = [...known].sort()[0]
-  if (!earliest || earliest >= month) return
+  if (!earliest || earliest >= end) return
 
   const byKey = new Map<string, AllocationRow>()
   for (const row of allocations) byKey.set(`${row.month}:${row.category_id}`, row)
   let changed = false
   let cursor = earliest
-  for (let step = 0; step < 48 && cursor < month; step += 1) {
+  for (let step = 0; step < 48 && cursor < end; step += 1) {
+    if (!monthHasPassed(cursor)) break
     const next = addMonths(cursor, 1)
     for (const category of categories) {
       const wrote = await applyOneCarry(userId, category.id, cursor, next, byKey, transactions)

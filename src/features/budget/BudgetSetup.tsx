@@ -173,7 +173,7 @@ export function BudgetSetup() {
       <h2 className="section-label">This month</h2>
       <MonthSwitcher month={month} onChange={setMonth} />
       <p className="muted pad">
-        Amounts for {formatMonth(month)}. Last month’s leftover is added once when you open the next month.
+        Amounts for {formatMonth(month)}. Leftover moves to the next month on the 1st, after this month has ended.
       </p>
       {monthly.length === 0 ? (
         <p className="empty">No areas yet. Add the ones you want.</p>

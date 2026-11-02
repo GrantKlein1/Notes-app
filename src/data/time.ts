@@ -14,6 +14,17 @@ export function isMonth(value: string): boolean {
   return /^\d{4}-(0[1-9]|1[0-2])$/.test(value)
 }
 
+/** True once the month is over: local today is on or after the 1st of the next month. */
+export function monthHasPassed(month: string, today = new Date()): boolean {
+  if (!isMonth(month)) return false
+  const next = addMonths(month, 1)
+  const match = /^(\d{4})-(\d{2})$/.exec(next)
+  if (!match?.[1] || !match[2]) return false
+  const startOfNext = new Date(Number(match[1]), Number(match[2]) - 1, 1)
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+  return todayStart >= startOfNext
+}
+
 export function addMonths(month: string, delta: number): string {
   const match = /^(\d{4})-(\d{2})$/.exec(month)
   if (!match?.[1] || !match[2]) return currentMonth()
