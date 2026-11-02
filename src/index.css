@@ -514,17 +514,17 @@ button { cursor: pointer; }
 .code-wrap {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
   margin-top: 16px;
 }
 .code-box {
-  height: 56px;
+  height: 48px;
   display: grid;
   place-items: center;
   background: var(--bg-elevated);
-  border-radius: 12px;
-  font-size: 24px;
+  border-radius: 10px;
+  font-size: 20px;
   font-variant-numeric: tabular-nums;
 }
 .code-box.on { outline: 2px solid var(--tint); }

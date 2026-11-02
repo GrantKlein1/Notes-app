@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { supabase } from '../data/supabase'
 import { useAuth } from './AuthProvider'
 
+const CODE_LENGTH = 8
+
 export function AuthScreen() {
   const { configured } = useAuth()
   const [step, setStep] = useState<'email' | 'code'>('email')
@@ -68,7 +70,7 @@ export function AuthScreen() {
       <img className="auth-mark" src="/icons/apple-touch-icon.png" alt="" width={72} height={72} />
       <h1>Notes</h1>
       <p className="lede">
-        Notes, budget, and prayer on this phone. Sign in with a 6-digit code so it stays in the app.
+        Notes, budget, and prayer on this phone. Sign in with the email code so it stays in the app.
       </p>
       {!configured ? (
         <p className="error">Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY before signing in.</p>
@@ -97,14 +99,14 @@ export function AuthScreen() {
         <form
           onSubmit={(event) => {
             event.preventDefault()
-            if (code.length === 6) void verify(code)
+            if (code.length === CODE_LENGTH) void verify(code)
           }}
         >
           <p className="muted">
             Enter the code sent to {email}. Don’t tap a link in the email — that opens Safari.
           </p>
           <div className="code-wrap" onClick={() => inputRef.current?.focus()}>
-            {Array.from({ length: 6 }, (_, index) => (
+            {Array.from({ length: CODE_LENGTH }, (_, index) => (
               <span key={index} className={code.length === index ? 'code-box on' : 'code-box'}>
                 {code[index] ?? ''}
               </span>
@@ -114,13 +116,13 @@ export function AuthScreen() {
               className="code-capture"
               inputMode="numeric"
               autoComplete="one-time-code"
-              maxLength={6}
+              maxLength={CODE_LENGTH}
               value={code}
-              aria-label="6-digit code"
+              aria-label="8-digit code"
               onChange={(event) => {
-                const next = event.target.value.replace(/\D/g, '').slice(0, 6)
+                const next = event.target.value.replace(/\D/g, '').slice(0, CODE_LENGTH)
                 setCode(next)
-                if (next.length === 6 && next !== lastTried.current) {
+                if (next.length === CODE_LENGTH && next !== lastTried.current) {
                   lastTried.current = next
                   void verify(next)
                 }
@@ -128,7 +130,7 @@ export function AuthScreen() {
             />
           </div>
           {error ? <p className="error">{error}</p> : null}
-          <button type="submit" className="primary" disabled={busy || code.length < 6}>
+          <button type="submit" className="primary" disabled={busy || code.length < CODE_LENGTH}>
             {busy ? 'Checking…' : 'Sign in'}
           </button>
           <button type="button" className="text-button" disabled={!canResend || busy} onClick={() => void sendCode()}>
